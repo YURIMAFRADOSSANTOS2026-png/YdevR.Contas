@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AS contas</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Inter', Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: linear-gradient(145deg, #1e1e2e, #2a2a3e);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            width: 480px;
+            max-width: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            background: transparent;
+            color: #888;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: fit-content;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+            color: #aaa;
+        }
+
+        #display {
+            width: 100%;
+            height: 70px;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-align: right;
+            padding: 15px;
+            border-radius: 16px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.1);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        #display:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            height: 50px;
+            font-size: 13px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button.special {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            font-weight: 600;
+        }
+
+        button.operator {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        button.function {
+            background: rgba(118, 75, 162, 0.2);
+            border-color: rgba(118, 75, 162, 0.3);
+            font-size: 11px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .geo-grid, .func-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .geo-card, .func-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .geo-card:hover, .func-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .geo-card.active, .func-card.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .geo-card h3, .func-card h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .shape-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70px;
+            margin: 10px 0;
+        }
+
+        .square-mini {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #667eea;
+        }
+
+        .rectangle-mini {
+            width: 50px;
+            height: 30px;
+            border: 2px solid #667eea;
+        }
+
+        .triangle-mini {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid #667eea;
+        }
+
+        .circle-mini {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #667eea;
+        }
+
+        .func-icon {
+            font-size: 36px;
+            margin: 10px 0;
+            color: #667eea;
+        }
+
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 14px;
+        }
+
+        .input-group select {
+            cursor: pointer;
+        }
+
+        .input-group select option {
+            background: #1e1e2e;
+            color: white;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            margin: 15px 0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-calculate:hover {
+            opacity: 0.9;
+        }
+
+        #resultado-geo, #resultado-func {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .memory-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 5px;
+        }
+
+        .memory-buttons button {
+            flex: 1;
+            height: 35px;
+            font-size: 11px;
+        }
+
+        .result-details {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .angle-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .angle-toggle button {
+            flex: 1;
+            height: 35px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('calc', this)">🧮 Calculadora</button>
+            <button class="tab" onclick="showTab('functions', this)">📈 Funções</button>
+            <button class="tab" onclick="showTab('geo', this)">📐 Geometria</button>
+        </div>
+
+        <!-- Aba Calculadora -->
+        <div id="calc">
+            <input type="text" id="display" readonly>
+            
+            <div class="memory-buttons">
+                <button onclick="memoryStore()">MS</button>
+                <button onclick="memoryRecall()">MR</button>
+                <button onclick="memoryClear()">MC</button>
+                <button onclick="memoryAdd()">M+</button>
+                <button onclick="memorySubtract()">M-</button>
+            </div>
+
+            <div class="buttons">
+                <button onclick="clearDisplay()" class="special">C</button>
+                <button onclick="deleteLast()">⌫</button>
+                <button onclick="append('(')">(</button>
+                <button onclick="append(')')">)</button>
+                <button onclick="append('/')" class="operator">÷</button>
+
+                <button onclick="append('7')">7</button>
+                <button onclick="append('8')">8</button>
+                <button onclick="append('9')">9</button>
+                <button onclick="append('*')" class="operator">×</button>
+                <button onclick="append('Math.sqrt(')" class="function">√</button>
+
+                <button onclick="append('4')">4</button>
+                <button onclick="append('5')">5</button>
+                <button onclick="append('6')">6</button>
+                <button onclick="append('-')" class="operator">−</button>
+                <button onclick="append('**2')" class="function">x²</button>
+
+                <button onclick="append('1')">1</button>
+                <button onclick="append('2')">2</button>
+                <button onclick="append('3')">3</button>
+                <button onclick="append('+')" class="operator">+</button>
+                <button onclick="append('**')" class="function">xʸ</button>
+
+                <button onclick="append('0')">0</button>
+                <button onclick="append('.')">.</button>
+                <button onclick="calculate()" class="special">=</button>
+                <button onclick="append('Math.sin(')" class="function">sin</button>
+                <button onclick="append('Math.cos(')" class="function">cos</button>
+
+                <button onclick="append('Math.tan(')" class="function">tan</button>
+                <button onclick="append('Math.log(')" class="function">log</button>
+                <button onclick="append('Math.PI')" class="function">π</button>
+                <button onclick="append('Math.E')" class="function">e</button>
+                <button onclick="append('Math.abs(')" class="function">|x|</button>
+            </div>
+        </div>
+
+        <!-- Aba Funções -->
+        <div id="functions" class="hidden">
+            <h2>Calculadora de Funções</h2>
+            
+            <div class="func-grid">
+                <div class="func-card active" onclick="selectFunction('trig', this)">
+                    <h3>Trigonométricas</h3>
+                    <div class="func-icon">∠</div>
+                </div>
+                <div class="func-card" onclick="selectFunction('log', this)">
+                    <h3>Logarítmicas</h3>
+                    <div class="func-icon">log</div>
+                </div>
+                <div class="func-card" onclick="selectFunction('exp', this)">
+                    <h3>Exponenciais</h3>
+                    <div class="func-icon">eˣ</div>
+                </div>
+                <div class="func-card" onclick="selectFunction('poly', this)">
+                    <h3>Polinomiais</h3>
+                    <div class="func-icon">xⁿ</div>
+                </div>
+                <div class="func-card" onclick="selectFunction('mod', this)">
+                    <h3>Modulares</h3>
+                    <div class="func-icon">|x|</div>
+                </div>
+                <div class="func-card" onclick="selectFunction('root', this)">
+                    <h3>Raízes</h3>
+                    <div class="func-icon">√</div>
+                </div>
+            </div>
+
+            <div id="func-inputs">
+                <div class="angle-toggle">
+                    <button onclick="setAngleMode('deg')" id="degBtn" class="active">Graus</button>
+                    <button onclick="setAngleMode('rad')" id="radBtn">Radianos</button>
+                </div>
+                
+                <div class="input-group">
+                    <select id="func-type">
+                        <option value="sin">Seno (sin)</option>
+                        <option value="cos">Cosseno (cos)</option>
+                        <option value="tan">Tangente (tan)</option>
+                        <option value="asin">Arco Seno (arcsin)</option>
+                        <option value="acos">Arco Cosseno (arccos)</option>
+                        <option value="atan">Arco Tangente (arctan)</option>
+                    </select>
+                    <input id="func-input" placeholder="Valor do ângulo" type="number" step="any">
+                </div>
+            </div>
+
+            <button class="btn-calculate" onclick="calculateFunction()">Calcular Função</button>
+            
+            <div id="resultado-func">
+                Selecione o tipo de função e insira o valor
+            </div>
+        </div>
+
+        <!-- Aba Geometria -->
+        <div id="geo" class="hidden">
+            <h2>Calculadora Geométrica</h2>
+            
+            <div class="geo-grid">
+                <div class="geo-card active" onclick="selectShape('quadrado', this)">
+                    <h3>Quadrado</h3>
+                    <div class="shape-container">
+                        <div class="square-mini"></div>
+                    </div>
+                </div>
+                <div class="geo-card" onclick="selectShape('retangulo', this)">
+                    <h3>Retângulo</h3>
+                    <div class="shape-container">
+                        <div class="rectangle-mini"></div>
+                    </div>
+                </div>
+                <div class="geo-card" onclick="selectShape('triangulo', this)">
+                    <h3>Triângulo</h3>
+                    <div class="shape-container">
+                        <div class="triangle-mini"></div>
+                    </div>
+                </div>
+                <div class="geo-card" onclick="selectShape('circulo', this)">
+                    <h3>Círculo</h3>
+                    <div class="shape-container">
+                        <div class="circle-mini"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="geo-inputs">
+                <div class="input-group">
+                    <input id="input1" placeholder="Lado" type="number" step="any">
+                </div>
+            </div>
+
+            <button class="btn-calculate" onclick="calculateGeometry()">Calcular Área</button>
+            
+            <div id="resultado-geo">
+                Selecione uma figura e insira os valores
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        const display = document.getElementById('display');
+        let memory = 0;
+        let currentShape = 'quadrado';
+        let currentFunction = 'trig';
+        let angleMode = 'deg';
+
+        // Funções básicas da calculadora
+        function append(value) {
+            display.value += value;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function deleteLast() {
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculate() {
+            try {
+                let expression = display.value;
+                // Substituir símbolos por operadores JavaScript
+                expression = expression.replace(/×/g, '*');
+                expression = expression.replace(/÷/g, '/');
+                
+                // Avaliar expressão matemática de forma segura
+                let result = eval(expression);
+                
+                if (result === undefined || isNaN(result)) {
+                    display.value = 'Erro';
+                } else {
+                    display.value = Number(result.toFixed(10));
+                }
+            } catch (error) {
+                display.value = 'Erro';
+            }
+        }
+
+        // Funções de memória
+        function memoryStore() {
+            try {
+                memory = eval(display.value) || 0;
+            } catch {
+                memory = 0;
+            }
+        }
+
+        function memoryRecall() {
+            display.value += memory;
+        }
+
+        function memoryClear() {
+            memory = 0;
+        }
+
+        function memoryAdd() {
+            try {
+                memory += eval(display.value) || 0;
+            } catch {
+                // ignora erro
+            }
+        }
+
+        function memorySubtract() {
+            try {
+                memory -= eval(display.value) || 0;
+            } catch {
+                // ignora erro
+            }
+        }
+
+        // Funções de navegação
+        function showTab(tabName, element) {
+            document.getElementById('calc').classList.add('hidden');
+            document.getElementById('functions').classList.add('hidden');
+            document.getElementById('geo').classList.add('hidden');
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Funções de modo angular
+        function setAngleMode(mode) {
+            angleMode = mode;
+            document.getElementById('degBtn').classList.remove('active');
+            document.getElementById('radBtn').classList.remove('active');
+            document.getElementById(mode + 'Btn').classList.add('active');
+        }
+
+        // Funções matemáticas
+        function selectFunction(funcType, element) {
+            currentFunction = funcType;
+            
+            // Atualizar cards ativos
+            document.querySelectorAll('.func-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            // Atualizar inputs conforme o tipo de função
+            const inputContainer = document.getElementById('func-inputs');
+            
+            switch(funcType) {
+                case 'trig':
+                    inputContainer.innerHTML = `
+                        <div class="angle-toggle">
+                            <button onclick="setAngleMode('deg')" id="degBtn" class="${angleMode === 'deg' ? 'active' : ''}">Graus</button>
+                            <button onclick="setAngleMode('rad')" id="radBtn" class="${angleMode === 'rad' ? 'active' : ''}">Radianos</button>
+                        </div>
+                        <div class="input-group">
+                            <select id="func-type">
+                                <option value="sin">Seno (sin)</option>
+                                <option value="cos">Cosseno (cos)</option>
+                                <option value="tan">Tangente (tan)</option>
+                                <option value="asin">Arco Seno (arcsin)</option>
+                                <option value="acos">Arco Cosseno (arccos)</option>
+                                <option value="atan">Arco Tangente (arctan)</option>
+                            </select>
+                            <input id="func-input" placeholder="Valor do ângulo/função" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'log':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <select id="func-type">
+                                <option value="log">Logaritmo Natural (ln)</option>
+                                <option value="log10">Logaritmo Base 10 (log₁₀)</option>
+                                <option value="log2">Logaritmo Base 2 (log₂)</option>
+                                <option value="custom">Logaritmo Base Personalizada</option>
+                            </select>
+                            <input id="func-input" placeholder="Valor" type="number" step="any">
+                            <input id="base-input" placeholder="Base (para log personalizado)" type="number" step="any" style="display:none;">
+                        </div>
+                    `;
+                    
+                    // Mostrar/esconder campo de base personalizada
+                    document.getElementById('func-type').addEventListener('change', function() {
+                        const baseInput = document.getElementById('base-input');
+                        if (this.value === 'custom') {
+                            baseInput.style.display = 'block';
+                        } else {
+                            baseInput.style.display = 'none';
+                        }
+                    });
+                    break;
+                    
+                case 'exp':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <select id="func-type">
+                                <option value="exp">Exponencial (eˣ)</option>
+                                <option value="power">Potência (xⁿ)</option>
+                                <option value="expCustom">Exponencial Base Personalizada (aˣ)</option>
+                            </select>
+                            <input id="func-input" placeholder="Valor de x" type="number" step="any">
+                            <input id="exp-input" placeholder="Expoente/Base" type="number" step="any" style="display:none;">
+                        </div>
+                    `;
+                    
+                    document.getElementById('func-type').addEventListener('change', function() {
+                        const expInput = document.getElementById('exp-input');
+                        if (this.value === 'power') {
+                            expInput.style.display = 'block';
+                            expInput.placeholder = 'Expoente (n)';
+                        } else if (this.value === 'expCustom') {
+                            expInput.style.display = 'block';
+                            expInput.placeholder = 'Base (a)';
+                        } else {
+                            expInput.style.display = 'none';
+                        }
+                    });
+                    break;
+                    
+                case 'poly':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <label style="color: #aaa; font-size: 14px;">Coeficientes do polinômio (ax² + bx + c)</label>
+                            <input id="coef-a" placeholder="Coeficiente a (x²)" type="number" step="any" value="1">
+                            <input id="coef-b" placeholder="Coeficiente b (x)" type="number" step="any" value="0">
+                            <input id="coef-c" placeholder="Coeficiente c (constante)" type="number" step="any" value="0">
+                            <input id="func-input" placeholder="Valor de x" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'mod':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <select id="func-type">
+                                <option value="abs">Valor Absoluto (|x|)</option>
+                                <option value="floor">Arredondar para Baixo (⌊x⌋)</option>
+                                <option value="ceil">Arredondar para Cima (⌈x⌉)</option>
+                                <option value="round">Arredondar (round)</option>
+                                <option value="sign">Sinal de x (sign)</option>
+                            </select>
+                            <input id="func-input" placeholder="Valor" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'root':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <select id="func-type">
+                                <option value="sqrt">Raiz Quadrada (√x)</option>
+                                <option value="cbrt">Raiz Cúbica (∛x)</option>
+                                <option value="nroot">Raiz N-ésima (ⁿ√x)</option>
+                            </select>
+                            <input id="func-input" placeholder="Valor" type="number" step="any">
+                            <input id="root-index" placeholder="Índice da raiz" type="number" step="any" value="2" style="display:none;">
+                        </div>
+                    `;
+                    
+                    document.getElementById('func-type').addEventListener('change', function() {
+                        const rootIndex = document.getElementById('root-index');
+                        if (this.value === 'nroot') {
+                            rootIndex.style.display = 'block';
+                        } else {
+                            rootIndex.style.display = 'none';
+                        }
+                    });
+                    break;
+            }
+            
+            document.getElementById('resultado-func').textContent = 'Configure a função e insira os valores';
+        }
+
+        function calculateFunction() {
+            let result = 0;
+            let expression = '';
+            
+            switch(currentFunction) {
+                case 'trig':
+                    const input = parseFloat(document.getElementById('func-input')?.value);
+                    const funcType = document.getElementById('func-type')?.value;
+                    
+                    if (isNaN(input)) {
+                        document.getElementById('resultado-func').textContent = 'Insira um valor válido';
+                        return;
+                    }
+                    
+                    let angle = input;
+                    if (angleMode === 'deg') {
+                        angle = input * Math.PI / 180;
+                    }
+                    
+                    switch(funcType) {
+                        case 'sin':
+                            result = Math.sin(angle);
+                            expression = `sin(${input}${angleMode === 'deg' ? '°' : ' rad'})`;
+                            break;
+                        case 'cos':
+                            result = Math.cos(angle);
+                            expression = `cos(${input}${angleMode === 'deg' ? '°' : ' rad'})`;
+                            break;
+                        case 'tan':
+                            result = Math.tan(angle);
+                            expression = `tan(${input}${angleMode === 'deg' ? '°' : ' rad'})`;
+                            break;
+                        case 'asin':
+                            result = Math.asin(input);
+                            expression = `arcsin(${input})`;
+                            break;
+                        case 'acos':
+                            result = Math.acos(input);
+                            expression = `arccos(${input})`;
+                            break;
+                        case 'atan':
+                            result = Math.atan(input);
+                            expression = `arctan(${input})`;
+                            break;
+                    }
+                    break;
+                    
+                case 'log':
+                    const logInput = parseFloat(document.getElementById('func-input')?.value);
+                    const logType = document.getElementById('func-type')?.value;
+                    
+                    if (isNaN(logInput) || logInput <= 0) {
+                        document.getElementById('resultado-func').textContent = 'Valor deve ser maior que zero';
+                        return;
+                    }
+                    
+                    switch(logType) {
+                        case 'log':
+                            result = Math.log(logInput);
+                            expression = `ln(${logInput})`;
+                            break;
+                        case 'log10':
+                            result = Math.log10(logInput);
+                            expression = `log₁₀(${logInput})`;
+                            break;
+                        case 'log2':
+                            result = Math.log2(logInput);
+                            expression = `log₂(${logInput})`;
+                            break;
+                        case 'custom':
+                            const base = parseFloat(document.getElementById('base-input')?.value);
+                            if (isNaN(base) || base <= 0 || base === 1) {
+                                document.getElementById('resultado-func').textContent = 'Base inválida';
+                                return;
+                            }
+                            result = Math.log(logInput) / Math.log(base);
+                            expression = `log_${base}(${logInput})`;
+                            break;
+                    }
+                    break;
+                    
+                case 'exp':
+                    const expInput = parseFloat(document.getElementById('func-input')?.value);
+                    const expType = document.getElementById('func-type')?.value;
+                    
+                    if (isNaN(expInput)) {
+                        document.getElementById('resultado-func').textContent = 'Insira um valor válido';
+                        return;
+                    }
+                    
+                    switch(expType) {
+                        case 'exp':
+                            result = Math.exp(expInput);
+                            expression = `e^${expInput}`;
+                            break;
+                        case 'power':
+                            const exponent = parseFloat(document.getElementById('exp-input')?.value);
+                            if (isNaN(exponent)) {
+                                document.getElementById('resultado-func').textContent = 'Insira o expoente';
+                                return;
+                            }
+                            result = Math.pow(expInput, exponent);
+                            expression = `${expInput}^${exponent}`;
+                            break;
+                        case 'expCustom':
+                            const baseExp = parseFloat(document.getElementById('exp-input')?.value);
+                            if (isNaN(baseExp)) {
+                                document.getElementById('resultado-func').textContent = 'Insira a base';
+                                return;
+                            }
+                            result = Math.pow(baseExp, expInput);
+                            expression = `${baseExp}^${expInput}`;
+                            break;
+                    }
+                    break;
+                    
+                case 'poly':
+                    const a = parseFloat(document.getElementById('coef-a')?.value) || 0;
+                    const b = parseFloat(document.getElementById('coef-b')?.value) || 0;
+                    const c = parseFloat(document.getElementById('coef-c')?.value) || 0;
+                    const x = parseFloat(document.getElementById('func-input')?.value);
+                    
+                    if (isNaN(x)) {
+                        document.getElementById('resultado-func').textContent = 'Insira o valor de x';
+                        return;
+                    }
+                    
+                    result = a * x * x + b * x + c;
+                    expression = `${a}x² + ${b}x + ${c}`;
+                    break;
+                    
+                case 'mod':
+                    const modInput = parseFloat(document.getElementById('func-input')?.value);
+                    const modType = document.getElementById('func-type')?.value;
+                    
+                    if (isNaN(modInput)) {
+                        document.getElementById('resultado-func').textContent = 'Insira um valor válido';
+                        return;
+                    }
+                    
+                    switch(modType) {
+                        case 'abs':
+                            result = Math.abs(modInput);
+                            expression = `|${modInput}|`;
+                            break;
+                        case 'floor':
+                            result = Math.floor(modInput);
+                            expression = `⌊${modInput}⌋`;
+                            break;
+                        case 'ceil':
+                            result = Math.ceil(modInput);
+                            expression = `⌈${modInput}⌉`;
+                            break;
+                        case 'round':
+                            result = Math.round(modInput);
+                            expression = `round(${modInput})`;
+                            break;
+                        case 'sign':
+                            result = Math.sign(modInput);
+                            expression = `sign(${modInput})`;
+                            break;
+                    }
+                    break;
+                    
+                case 'root':
+                    const rootInput = parseFloat(document.getElementById('func-input')?.value);
+                    const rootType = document.getElementById('func-type')?.value;
+                    
+                    if (isNaN(rootInput)) {
+                        document.getElementById('resultado-func').textContent = 'Insira um valor válido';
+                        return;
+                    }
+                    
+                    switch(rootType) {
+                        case 'sqrt':
+                            if (rootInput < 0) {
+                                document.getElementById('resultado-func').textContent = 'Não existe raiz real de número negativo';
+                                return;
+                            }
+                            result = Math.sqrt(rootInput);
+                            expression = `√${rootInput}`;
+                            break;
+                        case 'cbrt':
+                            result = Math.cbrt(rootInput);
+                            expression = `∛${rootInput}`;
+                            break;
+                        case 'nroot':
+                            const index = parseFloat(document.getElementById('root-index')?.value);
+                            if (isNaN(index) || index === 0) {
+                                document.getElementById('resultado-func').textContent = 'Índice inválido';
+                                return;
+                            }
+                            if (rootInput < 0 && index % 2 === 0) {
+                                document.getElementById('resultado-func').textContent = 'Não existe raiz real de número negativo com índice par';
+                                return;
+                            }
+                            result = Math.pow(rootInput, 1/index);
+                            expression = `${index}√${rootInput}`;
+                            break;
+                    }
+                    break;
+            }
+            
+            document.getElementById('resultado-func').innerHTML = `
+                ${expression} = ${result.toFixed(8)}<br>
+                <div class="result-details">Resultado com 8 casas decimais</div>
+            `;
+        }
+
+        // Funções de geometria
+        function selectShape(shape, element) {
+            currentShape = shape;
+            
+            document.querySelectorAll('.geo-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            const inputContainer = document.getElementById('geo-inputs');
+            
+            switch(shape) {
+                case 'quadrado':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <input id="input1" placeholder="Lado" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+                case 'retangulo':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <input id="input1" placeholder="Base" type="number" step="any">
+                            <input id="input2" placeholder="Altura" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+                case 'triangulo':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <input id="input1" placeholder="Base" type="number" step="any">
+                            <input id="input2" placeholder="Altura" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+                case 'circulo':
+                    inputContainer.innerHTML = `
+                        <div class="input-group">
+                            <input id="input1" placeholder="Raio" type="number" step="any">
+                        </div>
+                    `;
+                    break;
+            }
+            
+            document.getElementById('resultado-geo').textContent = 'Insira os valores e calcule a área';
+        }
+
+        function calculateGeometry() {
+            const input1 = parseFloat(document.getElementById('input1')?.value);
+            const input2 = parseFloat(document.getElementById('input2')?.value);
+            let area = 0;
+            
+            if (isNaN(input1) || input1 <= 0) {
+                document.getElementById('resultado-geo').textContent = 'Por favor, insira um valor válido';
+                return;
+            }
+            
+            switch(currentShape) {
+                case 'quadrado':
+                    area = input1 * input1;
+                    document.getElementById('resultado-geo').innerHTML = `
+                        Área do Quadrado = ${area.toFixed(4)}<br>
+                        <small>Lado = ${input1}</small>
+                    `;
+                    break;
+                    
+                case 'retangulo':
+                    if (isNaN(input2) || input2 <= 0) {
+                        document.getElementById('resultado-geo').textContent = 'Por favor, insira a altura';
+                        return;
+                    }
+                    area = input1 * input2;
+                    document.getElementById('resultado-geo').innerHTML = `
+                        Área do Retângulo = ${area.toFixed(4)}<br>
+                        <small>Base = ${input1} | Altura = ${input2}</small>
+                    `;
+                    break;
+                    
+                case 'triangulo':
+                    if (isNaN(input2) || input2 <= 0) {
+                        document.getElementById('resultado-geo').textContent = 'Por favor, insira a altura';
+                        return;
+                    }
+                    area = (input1 * input2) / 2;
+                    document.getElementById('resultado-geo').innerHTML = `
+                        Área do Triângulo = ${area.toFixed(4)}<br>
+                        <small>Base = ${input1} | Altura = ${input2}</small>
+                    `;
+                    break;
+                    
+                case 'circulo':
+                    area = Math.PI * input1 * input1;
+                    document.getElementById('resultado-geo').innerHTML = `
+                        Área do Círculo = ${area.toFixed(4)}<br>
+                        <small>Raio = ${input1} | π = ${Math.PI.toFixed(4)}</small>
+                    `;
+                    break;
+            }
+        }
+
+        // Suporte a teclado
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            
+            if (document.getElementById('calc').classList.contains('hidden')) return;
+            
+            if (key >= '0' && key <= '9' || key === '.' || key === '+' || 
+                key === '-' || key === '*' || key === '/' || key === '(' || key === ')') {
+                append(key);
+            } else if (key === 'Enter') {
+                calculate();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            }
+        });
+    </script>
+    
+</body>
+</html>
